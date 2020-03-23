@@ -37,7 +37,7 @@ namespace MailHandler.Forwarding
 
 		public void ForwardEmail(MimeMessage mimeMessage)
 		{
-			Metadata metadata = MetadataFactory.GenerateFrom(_options, mimeMessage);
+			Metadata metadata = MetadataFactory.GenerateFrom(mimeMessage);
 			Email email = new Email(new System.Net.Mail.MailAddress(_options.GetSender()),
 				new System.Net.Mail.MailAddress(_options.RelayEmail))
 			{

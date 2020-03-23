@@ -6,12 +6,7 @@ namespace MailHandler.Forwarding.Meta
 {
 	public class MetadataFactory
 	{
-		public static Metadata GenerateFrom(Options options, MimeMessage mimeMessage)
-		{
-			return GenerateFrom(options.SmtpHost, mimeMessage);
-		}
-
-		public static Metadata GenerateFrom(string currentDomain, MimeMessage mimeMessage)
+		public static Metadata GenerateFrom(MimeMessage mimeMessage)
 		{
 			Metadata metadata = new Metadata
 			{

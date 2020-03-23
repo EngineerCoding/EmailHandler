@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
 using System.Text;
 
@@ -64,7 +65,7 @@ namespace MailHandler.Forwarding.Meta
 							.Append(key)
 						.Append(TdClosing)
 						.Append(TdOpening)
-							.Append(value)
+							.Append(WebUtility.HtmlEncode(value))
 						.Append(TdClosing)
 					.Append(TrClosing);
 			}
