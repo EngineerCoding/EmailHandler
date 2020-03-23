@@ -11,23 +11,27 @@ namespace MailHandler.Forwarding
 	{
 		private readonly Options _options;
 		private readonly IEmailSender _sender;
+		private readonly IEmailDatabase _database;
 
-		public Forwarder(Options options, IEmailSender emailSender)
+		public Forwarder(Options options, IEmailSender emailSender, IEmailDatabase database)
 		{
 			_options = options;
 			_sender = emailSender;
+			_database = database;
 		}
 
 		public bool HandleIncomingEmail()
 		{
 			MimeParser mimeParser = new MimeParser(_options.GetInputEmail(), !_options.StdIn);
 			MimeMessage message = mimeParser.ParseMessage();
-			if (IsFromRelay(message.From[0].ToString()))
+			string from = message.From[0].ToString();
+
+			if (IsFromRelay(from))
 			{
 				// Not supported yet
 				return false;
 			}
-			else
+			else if (ShouldForward(from))
 			{
 				ForwardEmail(message);
 			}
@@ -72,6 +76,16 @@ namespace MailHandler.Forwarding
 			}
 
 			_sender.SendEmail(email);
+		}
+
+		public bool ShouldForward(string email)
+		{
+			IEmailEntry emailEntry = _database.FindEmailEntry(email);
+			if (emailEntry != null)
+			{
+				return !emailEntry.Blacklisted;
+			}
+			return true;
 		}
 
 		public bool IsFromRelay(string email)

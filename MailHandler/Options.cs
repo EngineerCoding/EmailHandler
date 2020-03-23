@@ -16,6 +16,9 @@ namespace MailHandler
 		[Option(HelpText = "Read an email from stdin")]
 		public bool StdIn { get; set; }
 
+		[Option(HelpText = "The location where the database is stored for blacklisting")]
+		public string EmailDatabase { get; set; }
+
 		#region SMTP
 
 		[Option(HelpText = "The host this client lives on")]
