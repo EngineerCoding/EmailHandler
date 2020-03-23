@@ -38,13 +38,11 @@ namespace MailHandler.Forwarding
 		public void ForwardEmail(MimeMessage mimeMessage)
 		{
 			Metadata metadata = MetadataFactory.GenerateFrom(_options, mimeMessage);
-			string textContent = mimeMessage.GetTextBody(TextFormat.Plain);
-
 			Email email = new Email(new System.Net.Mail.MailAddress(_options.GetSender()),
 				new System.Net.Mail.MailAddress(_options.RelayEmail))
 			{
-				TextContent = MetadataSerializer.Serialize(metadata, textContent),
-				HtmlContent = mimeMessage.GetTextBody(TextFormat.Html),
+				TextContent = MetadataSerializer.SerializeWithText(metadata, mimeMessage.GetTextBody(TextFormat.Plain)),
+				HtmlContent = MetadataSerializer.SerializeWithHtml(metadata, mimeMessage.GetTextBody(TextFormat.Html)),
 				Subject = mimeMessage.Subject,
 			};
 	

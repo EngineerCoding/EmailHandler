@@ -26,7 +26,6 @@ namespace MailHandler.Forwarding.Meta
 			return metadata;
 		}
 
-
 		private static string ToReadableString(IEnumerable<InternetAddress> internetAddresses)
 		{
 			IEnumerable<string> addresses = internetAddresses.Select(address => address.ToString());
