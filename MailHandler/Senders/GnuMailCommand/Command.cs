@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 
 namespace MailHandler.Senders.GnuMailCommand
 {
@@ -10,20 +9,20 @@ namespace MailHandler.Senders.GnuMailCommand
 		{
 			StartInfo = new ProcessStartInfo("/usr/bin/mail")
 			{
-				UseShellExecute = true,
+				UseShellExecute = false,
 				CreateNoWindow = true,
 			},
 		};
 
-		private IEnumerable<string> _files;
+		private readonly IEnumerable<Interfaces.Models.Attachment> _attachments;
 
-		public Command(IEnumerable<string> arguments, IEnumerable<string> files)
+		public Command(IEnumerable<string> arguments, IEnumerable<Interfaces.Models.Attachment> attachments)
 		{
 			foreach (string argument in arguments)
 			{
 				process.StartInfo.ArgumentList.Add(argument);
 			}
-			_files = files;
+			_attachments = attachments;
 		}
 
 		public void Execute()
@@ -31,9 +30,9 @@ namespace MailHandler.Senders.GnuMailCommand
 			process.Start();
 			process.WaitForExit();
 
-			foreach (string file in _files)
+			foreach (Interfaces.Models.Attachment attachment in _attachments)
 			{
-				File.Delete(file);
+				attachment.Dispose();
 			}
 		}
 	}

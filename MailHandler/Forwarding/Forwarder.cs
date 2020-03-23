@@ -1,6 +1,9 @@
 ﻿using MailHandler.Forwarding.Meta;
 using MailHandler.Interfaces;
+using MailHandler.Interfaces.Models;
 using MimeKit;
+using MimeKit.Text;
+using System.IO;
 
 namespace MailHandler.Forwarding
 {
@@ -35,12 +38,42 @@ namespace MailHandler.Forwarding
 		public void ForwardEmail(MimeMessage mimeMessage)
 		{
 			Metadata metadata = MetadataFactory.GenerateFrom(_options, mimeMessage);
-			string textBody = mimeMessage.GetTextBody(MimeKit.Text.TextFormat.Plain);
+			string textContent = mimeMessage.GetTextBody(TextFormat.Plain);
 
-			_sender.SendEmail(
-				_options.GetSender(), _options.RelayEmail, mimeMessage.Subject,
-				MetadataSerializer.Serialize(metadata, textBody),
-				mimeMessage.GetTextBody(MimeKit.Text.TextFormat.Html));
+			Email email = new Email(new System.Net.Mail.MailAddress(_options.GetSender()),
+				new System.Net.Mail.MailAddress(_options.RelayEmail))
+			{
+				TextContent = MetadataSerializer.Serialize(metadata, textContent),
+				HtmlContent = mimeMessage.GetTextBody(TextFormat.Html),
+				Subject = mimeMessage.Subject,
+			};
+	
+			foreach (MimeEntity mimeEntity in mimeMessage.BodyParts)
+			{
+				if (mimeEntity.IsAttachment)
+				{
+					MimePart mimePart = mimeEntity as MimePart;
+					if (mimePart == null) continue;
+
+					TemporaryAttachment temporaryAttachment;
+					using (MemoryStream memoryStream = new MemoryStream())
+					{
+						mimePart.Content.DecodeTo(memoryStream);
+						memoryStream.Seek(0, SeekOrigin.Begin);
+
+						temporaryAttachment = new TemporaryAttachment(memoryStream)
+						{
+							DisplayFileName = mimePart.FileName,
+							ContentType = mimePart.ContentType.MimeType,
+							Encoding = mimePart.ContentTransferEncoding.GetRaw(),
+						};
+					}
+
+					email.Attachments.Add(temporaryAttachment);
+				}
+			}
+
+			_sender.SendEmail(email);
 		}
 
 		public bool IsFromRelay(string email)

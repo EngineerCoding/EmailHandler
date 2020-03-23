@@ -1,65 +1,114 @@
 ﻿using System.Collections.Generic;
-using System.IO;
+using System.Linq;
+using System.Net.Mail;
 
 namespace MailHandler.Senders.GnuMailCommand
 {
 	public class CommandBuilder
 	{
-		private const string Subject = "\"--subject={0}\"";
-		private const string ReturnAddress = "--return-address={0}";
-		private const string ContentType = "--content-type={0}";
-		private const string Attach = "--attach={0}";
+		private const string SubjectFormat = "--subject={0}";
+		private const string ReturnAddressFormat = "--return-address={0}";
 		private const string Alternative = "--alternative";
 
-		private string subject;
-		private string returnAddress;
-		private readonly List<string> contentArguments = new List<string>();
-		private readonly List<string> contentFiles = new List<string>();
-
-		public CommandBuilder SetSubject(string subject)
+		private string _subject;
+		public string Subject
 		{
-			if (!string.IsNullOrEmpty(subject))
+			set
 			{
-				this.subject = string.Format(Subject, Escape(subject));
-			}
-			return this;
-		}
-
-		public CommandBuilder SetFrom(string from)
-		{
-			if (!string.IsNullOrEmpty(from))
-			{
-				returnAddress = string.Format(ReturnAddress, from);
-			}
-			return this;
-		}
-
-		public void AttachContent(ContentType contentType, string content)
-		{
-			if (!string.IsNullOrEmpty(content))
-			{
-				string path = Path.GetTempFileName();
-				File.WriteAllText(path, content);
-
-				contentArguments.Add(string.Format(ContentType, "text/" + contentType.ToString().ToLowerInvariant()));
-				contentArguments.Add(string.Format(Attach, path));
-				contentFiles.Add(path);
+				if (!string.IsNullOrEmpty(value))
+				{
+					_subject = string.Format(SubjectFormat, Escape(value));
+				}
 			}
 		}
 
-		public Command Build(IEnumerable<string> recipients)
+		private string _returnAddress;
+		public MailAddress ReturnAddress
 		{
-			List<string> arguments = new List<string>
+			set
 			{
-				Alternative,
-			};
+				_returnAddress = string.Format(ReturnAddressFormat, value.Address);
+			}
+		}
 
-			if (!string.IsNullOrEmpty(subject)) arguments.Add(subject);
-			if (!string.IsNullOrEmpty(returnAddress)) arguments.Add(returnAddress);
-			arguments.AddRange(contentArguments);
-			arguments.AddRange(recipients);
+		private Interfaces.Models.Attachment _textAttachment;
+		public Interfaces.Models.Attachment TextContent
+		{
+			set
+			{
+				_textAttachment = value;
+			}
+		}
 
-			return new Command(arguments, contentFiles);
+		private Interfaces.Models.Attachment _htmlAttachment;
+		public Interfaces.Models.Attachment HtmlContent
+		{
+			set
+			{
+				_htmlAttachment = value;
+			}
+		}
+
+		private List<Interfaces.Models.Attachment> _attachments = new List<Interfaces.Models.Attachment>();
+
+		public void AddAttachment(Interfaces.Models.Attachment attachment)
+		{
+			if (attachment != null)
+			{
+				_attachments.Add(attachment);
+			}
+		}
+
+		public void AddAttachments(IEnumerable<Interfaces.Models.Attachment> attachments)
+		{
+			foreach (Interfaces.Models.Attachment attachment in attachments)
+			{
+				AddAttachment(attachment);
+			}
+		}
+
+		public Command Build(IEnumerable<MailAddress> recipients)
+		{
+			List<MailAddress> recipientMailAddresses = recipients.Where(recipient => recipient != null).ToList();
+			if (recipientMailAddresses.Count == 0)
+			{
+				throw new System.ArgumentException("At least 1 argument required");
+			}
+   
+			List<string> arguments = new List<string>();
+			if (!string.IsNullOrEmpty(_subject)) arguments.Add(_subject);
+			if (!string.IsNullOrEmpty(_returnAddress)) arguments.Add(_returnAddress);
+
+			// Add attachments
+			foreach (Interfaces.Models.Attachment attachment in _attachments)
+			{
+				arguments.AddRange(attachment.GetArguments());
+			}
+
+			// Add alternative attachments
+			arguments.Add(Alternative);
+			if (_textAttachment != null)
+			{
+				arguments.AddRange(_textAttachment.GetArguments());
+				_attachments.Add(_textAttachment);
+			}
+
+			if (_htmlAttachment != null)
+			{
+				arguments.AddRange(_htmlAttachment.GetArguments());
+				_attachments.Add(_htmlAttachment);
+			}
+
+			// Add recipients
+			arguments.AddRange(recipientMailAddresses.Select(recipient => recipient.Address));
+
+			System.Console.WriteLine("Executing: mail");
+			foreach (string arg in arguments)
+			{
+				System.Console.WriteLine("\t" + arg);
+			}
+	
+			return new Command(arguments, _attachments);
 		}
 
 		private static readonly char[] UnsafeCharacters = new char[]
@@ -76,6 +125,5 @@ namespace MailHandler.Senders.GnuMailCommand
 			}
 			return unescaped;
 		}
-
 	}
 }

@@ -1,27 +1,23 @@
-﻿using MailHandler.Senders.GnuMailCommand;
-using System.Collections.Generic;
+﻿using MailHandler.Interfaces;
+using MailHandler.Interfaces.Models;
+using MailHandler.Senders.GnuMailCommand;
 
 namespace MailHandler.Senders
 {
-	public class GnuMailSender : AbstractMailSender
+	public class GnuMailSender : IEmailSender
 	{
-		public override void SendEmail(string from, IEnumerable<string> to, string subject, string textBody, string htmlContent)
+		public void SendEmail(Email email)
 		{
-			CommandBuilder builder = new CommandBuilder()
-				.SetFrom(from)
-				.SetSubject(subject);
-
-			if (!string.IsNullOrEmpty(textBody))
+			CommandBuilder builder = new CommandBuilder
 			{
-				builder.AttachContent(ContentType.Plain, textBody);
-			}
-			
-			if (!string.IsNullOrEmpty(htmlContent))
-			{
-				builder.AttachContent(ContentType.Html, htmlContent);
-			}
+				Subject = email.Subject,
+				ReturnAddress = email.From,
+				TextContent = email.GetTextContentAsAttachment(),
+				HtmlContent = email.GetHtmlContentAsAttachment(),
+			};
+			builder.AddAttachments(email.Attachments);
 
-			builder.Build(to).Execute();
+			builder.Build(email.To).Execute();
 		}
 	}
 }
