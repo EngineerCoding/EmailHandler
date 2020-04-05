@@ -6,5 +6,6 @@
 		public string From { get; set; }
 		public string MessageId { get; set; }
 		public string ReplyTo { get; set; }
+		public string Tag { get; set; }
 	}
 }

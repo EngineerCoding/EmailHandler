@@ -1,4 +1,5 @@
 ﻿using MailDatabase;
+using MailHandler.Cache;
 using MailHandler.Forwarding.Meta;
 using MailHandler.Interfaces;
 using MailHandler.Interfaces.Models;
@@ -12,13 +13,15 @@ namespace MailHandler.Forwarding
 	{
 		private readonly Options _options;
 		private readonly IEmailSender _sender;
-		private readonly IEmailDatabase _database;
+
+		private readonly SessionObjectCache<string, IEmailEntry> emailEntryCache;
 
 		public Forwarder(Options options, IEmailSender emailSender, IEmailDatabase database)
 		{
 			_options = options;
 			_sender = emailSender;
-			_database = database;
+
+			emailEntryCache = new SessionObjectCache<string, IEmailEntry>(database.FindEmailEntry);
 		}
 
 		public bool HandleIncomingEmail()
@@ -43,13 +46,22 @@ namespace MailHandler.Forwarding
 		public void ForwardEmail(MimeMessage mimeMessage)
 		{
 			Metadata metadata = MetadataFactory.GenerateFrom(mimeMessage);
-			Email email = new Email(new System.Net.Mail.MailAddress(_options.GetSender()),
+			Email email = new Email(
+				new System.Net.Mail.MailAddress(_options.GetSender()),
 				new System.Net.Mail.MailAddress(_options.RelayEmail))
 			{
 				TextContent = MetadataSerializer.SerializeWithText(metadata, mimeMessage.GetTextBody(TextFormat.Plain)),
 				HtmlContent = MetadataSerializer.SerializeWithHtml(metadata, mimeMessage.GetTextBody(TextFormat.Html)),
-				Subject = mimeMessage.Subject,
 			};
+
+			// Add tags to the subject
+			email.Subject = mimeMessage.Subject;
+			IEmailEntry emailEntry = emailEntryCache.Get(metadata.From);
+			emailEntryCache.Clear();
+			if (!string.IsNullOrEmpty(emailEntry?.Tag))
+			{
+				email.Subject = $"[{emailEntry.Tag}] {email.Subject}";
+			}			
 	
 			foreach (MimeEntity mimeEntity in mimeMessage.BodyParts)
 			{
@@ -81,7 +93,7 @@ namespace MailHandler.Forwarding
 
 		public bool ShouldForward(string email)
 		{
-			IEmailEntry emailEntry = _database.FindEmailEntry(email);
+			IEmailEntry emailEntry = emailEntryCache.Get(email);
 			if (emailEntry != null)
 			{
 				return !emailEntry.Blacklisted;

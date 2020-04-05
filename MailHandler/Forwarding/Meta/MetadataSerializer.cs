@@ -23,7 +23,11 @@ namespace MailHandler.Forwarding.Meta
 			PropertyInfo[] properties = typeof(Metadata).GetProperties();
 			foreach (PropertyInfo property in properties)
 			{
-				yield return (property.Name, property.GetValue(metadata)?.ToString());
+				object value = property.GetValue(metadata);
+				if (value != null)
+				{
+					yield return (property.Name, value.ToString());
+				}
 			}
 			yield break;
 		}
