@@ -11,7 +11,9 @@ namespace MailHandler.Forwarding.Meta
 			Metadata metadata = new Metadata
 			{
 				From = ToReadableString(mimeMessage.From),
-				To = ToReadableString(mimeMessage.To)
+				To = ToReadableString(mimeMessage.To),
+				Cc = ToReadableString(mimeMessage.Cc),
+				Bcc = ToReadableString(mimeMessage.Bcc),
 			};
 
 			if (mimeMessage.Headers.Contains(HeaderId.MessageId))

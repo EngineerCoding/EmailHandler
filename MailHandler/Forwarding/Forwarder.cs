@@ -11,10 +11,13 @@ namespace MailHandler.Forwarding
 {
 	public class Forwarder : IEmailHandler
 	{
+		private const string OriginalToHeader = "X-Original-To";
+
 		private readonly Options _options;
 		private readonly IEmailSender _sender;
 
 		private readonly SessionObjectCache<string, IEmailEntry> emailEntryCache;
+		private readonly SessionObjectCache<MimeMessage, string> toCache;
 
 		public Forwarder(Options options, IEmailSender emailSender, IEmailDatabase database)
 		{
@@ -22,20 +25,32 @@ namespace MailHandler.Forwarding
 			_sender = emailSender;
 
 			emailEntryCache = new SessionObjectCache<string, IEmailEntry>(database.FindEmailEntry);
+			toCache = new SessionObjectCache<MimeMessage, string>((message) =>
+			{
+				string to = message.Headers[OriginalToHeader];
+				System.Net.Mail.MailAddress address = new System.Net.Mail.MailAddress(to);
+				return address.User;
+			});
 		}
 
 		public bool HandleIncomingEmail()
 		{
 			MimeParser mimeParser = new MimeParser(_options.GetInputEmail(), !_options.StdIn);
 			MimeMessage message = mimeParser.ParseMessage();
+			if (!message.Headers.Contains(OriginalToHeader))
+			{
+				return false;
+			}
+
 			string from = message.From[0].ToString();
+			string to = toCache.Get(message);
 
 			if (IsFromRelay(from))
 			{
 				// Not supported yet
 				return false;
 			}
-			else if (ShouldForward(from))
+			else if (ShouldForward(to))
 			{
 				ForwardEmail(message);
 			}
@@ -46,23 +61,24 @@ namespace MailHandler.Forwarding
 		public void ForwardEmail(MimeMessage mimeMessage)
 		{
 			Metadata metadata = MetadataFactory.GenerateFrom(mimeMessage);
+			// Add tags to the subject
+			string subject = mimeMessage.Subject;
+			IEmailEntry emailEntry = emailEntryCache.Get(toCache.Get(mimeMessage));
+			if (!string.IsNullOrEmpty(emailEntry?.Tag))
+			{
+				metadata.Tag = emailEntry.Tag;
+				subject = $"[{emailEntry.Tag}] {subject}";
+			}
+
 			Email email = new Email(
 				new System.Net.Mail.MailAddress(_options.GetSender()),
 				new System.Net.Mail.MailAddress(_options.RelayEmail))
 			{
 				TextContent = MetadataSerializer.SerializeWithText(metadata, mimeMessage.GetTextBody(TextFormat.Plain)),
 				HtmlContent = MetadataSerializer.SerializeWithHtml(metadata, mimeMessage.GetTextBody(TextFormat.Html)),
+				Subject = subject,
 			};
 
-			// Add tags to the subject
-			email.Subject = mimeMessage.Subject;
-			IEmailEntry emailEntry = emailEntryCache.Get(metadata.From);
-			emailEntryCache.Clear();
-			if (!string.IsNullOrEmpty(emailEntry?.Tag))
-			{
-				email.Subject = $"[{emailEntry.Tag}] {email.Subject}";
-			}			
-	
 			foreach (MimeEntity mimeEntity in mimeMessage.BodyParts)
 			{
 				if (mimeEntity.IsAttachment)
@@ -89,6 +105,9 @@ namespace MailHandler.Forwarding
 			}
 
 			_sender.SendEmail(email);
+
+			emailEntryCache.Clear();
+			toCache.Clear();
 		}
 
 		public bool ShouldForward(string email)
