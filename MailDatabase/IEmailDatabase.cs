@@ -1,7 +1,20 @@
-﻿namespace MailDatabase
+﻿using System.Collections.Generic;
+
+namespace MailDatabase
 {
 	public interface IEmailDatabase
 	{
-		IEmailEntry FindEmailEntry(string emailUser);
+		IEmailEntry Find(string emailUser);
+
+		void Insert(IEmailEntry emailEntry);
+
+		void Update(IEmailEntry emailEntry);
+
+		void Delete(IEmailEntry emailEntry);
+
+		IEnumerable<IEmailEntry> All();
+
+		int GetCount();
+
 	}
 }

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailHandler", "MailHandler\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailDatabase", "MailDatabase\MailDatabase.csproj", "{2A13D7EE-9797-4C53-8E8F-9F59CDCA6488}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailManagement", "MailManagement\MailManagement.csproj", "{27377F34-6901-404F-8CF6-784B0A9D0ED4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2A13D7EE-9797-4C53-8E8F-9F59CDCA6488}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2A13D7EE-9797-4C53-8E8F-9F59CDCA6488}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2A13D7EE-9797-4C53-8E8F-9F59CDCA6488}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27377F34-6901-404F-8CF6-784B0A9D0ED4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27377F34-6901-404F-8CF6-784B0A9D0ED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27377F34-6901-404F-8CF6-784B0A9D0ED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27377F34-6901-404F-8CF6-784B0A9D0ED4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

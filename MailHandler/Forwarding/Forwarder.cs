@@ -24,7 +24,7 @@ namespace MailHandler.Forwarding
 			_options = options;
 			_sender = emailSender;
 
-			emailEntryCache = new SessionObjectCache<string, IEmailEntry>(database.FindEmailEntry);
+			emailEntryCache = new SessionObjectCache<string, IEmailEntry>(database.Find);
 			toCache = new SessionObjectCache<MimeMessage, string>((message) =>
 			{
 				string to = message.Headers[OriginalToHeader];
