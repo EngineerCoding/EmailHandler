@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using CommandLine;
-using MailHandler.Database;
+using MailDatabase;
+using MailDatabase.SqlLite;
 using MailHandler.Forwarding;
 using MailHandler.Interfaces;
 using MailHandler.Senders;
@@ -53,7 +54,7 @@ namespace MailHandler
 			containerBuilder.RegisterInstance(options);
 			containerBuilder.RegisterType<GnuMailSender>().As<IEmailSender>();
 			containerBuilder.RegisterType<Forwarder>().As<IEmailHandler>();
-			containerBuilder.RegisterType<EmailDatabase>().As<IEmailDatabase>().SingleInstance();
+			containerBuilder.RegisterInstance(new EmailDatabase(options.EmailDatabase)).As<IEmailDatabase>();
 
 			return containerBuilder.Build();
 		}

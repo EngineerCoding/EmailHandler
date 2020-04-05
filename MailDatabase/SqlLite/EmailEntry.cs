@@ -1,7 +1,6 @@
-﻿using MailHandler.Interfaces;
-using SQLite;
+﻿using SQLite;
 
-namespace MailHandler.Database
+namespace MailDatabase
 {
 	public class EmailEntry : IEmailEntry
 	{

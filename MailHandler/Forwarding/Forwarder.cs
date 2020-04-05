@@ -1,4 +1,5 @@
-﻿using MailHandler.Forwarding.Meta;
+﻿using MailDatabase;
+using MailHandler.Forwarding.Meta;
 using MailHandler.Interfaces;
 using MailHandler.Interfaces.Models;
 using MimeKit;
