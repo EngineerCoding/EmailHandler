@@ -1,5 +1,8 @@
 using MailDatabase;
 using MailDatabase.SqlLite;
+using MailManagement.Scope;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +25,25 @@ namespace MailManagement
 		{
 			services.AddControllers();
 
+			string issuer = Configuration["Jwt:Authority"];
+
+			services.AddAuthentication(options =>
+			{
+				options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+				options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+			}).AddJwtBearer(options =>
+			{
+				options.Authority = issuer;
+				options.Audience = Configuration["Jwt:Audience"];
+			});
+
+			services.AddAuthorization(options =>
+			{
+				options.AddScopePolicies(issuer);
+			});
+
+			services.AddSingleton<IAuthorizationHandler, ScopeRequirementHandler>();
+
 			string databasePath = Configuration["SqliteDatabase"];
 			services.AddSingleton<IEmailDatabase>(new EmailDatabase(databasePath));
 		}
@@ -38,7 +60,11 @@ namespace MailManagement
 				app.UseHttpsRedirection();
 			}
 
+			app.UseAuthentication();
+
 			app.UseRouting();
+
+			app.UseAuthorization();
 
 			app.UseEndpoints(endpoints =>
 			{
