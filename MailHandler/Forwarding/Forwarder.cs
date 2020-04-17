@@ -12,6 +12,7 @@ namespace MailHandler.Forwarding
 	public class Forwarder : IEmailHandler
 	{
 		private const string OriginalToHeader = "X-Original-To";
+		private const string LocalSuffix = ".local";
 
 		private readonly Options _options;
 		private readonly IEmailSender _sender;
@@ -28,8 +29,17 @@ namespace MailHandler.Forwarding
 			toCache = new SessionObjectCache<MimeMessage, string>((message) =>
 			{
 				string to = message.Headers[OriginalToHeader];
-				System.Net.Mail.MailAddress address = new System.Net.Mail.MailAddress(to);
-				return address.User;
+				// Check if the to is a local user
+				if (to.Contains("@"))
+				{
+					System.Net.Mail.MailAddress address = new System.Net.Mail.MailAddress(to);
+					return address.User;
+				}
+				else
+				{
+					// probably a local user
+					return to + LocalSuffix;
+				}
 			});
 		}
 
