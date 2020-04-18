@@ -34,11 +34,6 @@ namespace MailHandler.Forwarding.Meta
 
 		public static string SerializeWithText(Metadata metadata, string body)
 		{
-			if (string.IsNullOrEmpty(body))
-			{
-				return null;
-			}
-
 			StringBuilder stringBuilder = new StringBuilder();
 			foreach ((string key, string value) in EnumerateProperties(metadata))
 			{
