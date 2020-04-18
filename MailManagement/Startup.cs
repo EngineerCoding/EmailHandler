@@ -1,8 +1,6 @@
 using MailDatabase;
 using MailDatabase.SqlLite;
-using MailManagement.Scope;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -37,11 +35,6 @@ namespace MailManagement
 				options.Audience = Configuration["Jwt:Audience"];
 			});
 
-			services.AddAuthorization(options =>
-			{
-				options.AddScopePolicies(issuer);
-			});
-
 			services.AddCors(options =>
 			{
 				options.AddDefaultPolicy(
@@ -50,8 +43,6 @@ namespace MailManagement
 						builder.WithOrigins(Configuration["CorsClient"]).AllowAnyHeader().AllowAnyMethod();
 					});
 			});
-
-			services.AddSingleton<IAuthorizationHandler, ScopeRequirementHandler>();
 
 			string databasePath = Configuration["SqliteDatabase"];
 			services.AddSingleton<IEmailDatabase>(new EmailDatabase(databasePath));

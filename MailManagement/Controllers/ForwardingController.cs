@@ -1,6 +1,5 @@
 ﻿using MailDatabase;
 using MailManagement.Models;
-using MailManagement.Scope;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +12,7 @@ using EmailEntry = MailManagement.Models.EmailEntry;
 namespace MailManagement.Controllers
 {
 	[ApiController]
+	[Authorize]
 	[Route("mail/[controller]")]
 	public class ForwardingController : ControllerBase
 	{
@@ -24,7 +24,6 @@ namespace MailManagement.Controllers
 		}
 
 		[HttpGet("All")]
-		[Authorize(Scopes.ScopeReadAdminMail)]
 		public PaginatedResult<IEmailEntry> All(int page = 0, int pageCount = 25)
 		{
 			return new PaginatedResult<IEmailEntry>()
@@ -46,7 +45,6 @@ namespace MailManagement.Controllers
 		}
 
 		[HttpPost("Create")]
-		[Authorize(Scopes.ScopeWriteAdminMail)]
 		public IActionResult Create([FromBody] EmailEntry emailEntry)
 		{
 			IEmailEntry existingItem = _emailDatabase.Find(emailEntry.EmailUser);
@@ -65,7 +63,6 @@ namespace MailManagement.Controllers
 		}
 
 		[HttpGet("{emailUser}")]
-		[Authorize(Scopes.ScopeReadAdminMail)]
 		public IActionResult Get(string emailUser)
 		{
 			IEmailEntry emailEntry = _emailDatabase.Find(emailUser);
@@ -83,7 +80,6 @@ namespace MailManagement.Controllers
 		}
 
 		[HttpPut("{emailUser}")]
-		[Authorize(Scopes.ScopeWriteAdminMail)]
 		public IActionResult Update(string emailUser, [FromBody] EmailEntry emailEntry)
 		{
 			IEmailEntry existingItem = _emailDatabase.Find(emailUser);
@@ -115,7 +111,6 @@ namespace MailManagement.Controllers
 		}
 
 		[HttpDelete("{emailUser}")]
-		[Authorize(Scopes.ScopeWriteAdminMail)]
 		public IActionResult Delete(string emailUser)
 		{
 			IEmailEntry emailEntry = _emailDatabase.Find(emailUser);
