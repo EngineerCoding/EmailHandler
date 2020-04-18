@@ -9,6 +9,7 @@ namespace MailHandler.Senders.GnuMailCommand
 		private const string SubjectFormat = "--subject={0}";
 		private const string ReturnAddressFormat = "--return-address={0}";
 		private const string Alternative = "--alternative";
+		private const string QuotedPrintableEncoding = "quoted-printable";
 
 		private string _subject;
 		public string Subject
@@ -87,28 +88,33 @@ namespace MailHandler.Senders.GnuMailCommand
 
 			// Add alternative attachments
 			arguments.Add(Alternative);
+
+			string inputStreamPath = null;
 			if (_textAttachment != null)
 			{
-				arguments.AddRange(_textAttachment.GetArguments());
+				inputStreamPath = _textAttachment.FilePath;
 				_attachments.Add(_textAttachment);
 			}
 
 			if (_htmlAttachment != null)
 			{
-				arguments.AddRange(_htmlAttachment.GetArguments());
+				if (inputStreamPath == null)
+				{
+					inputStreamPath = _htmlAttachment.FilePath;
+				}
+				else
+				{
+					_htmlAttachment.Encoding = QuotedPrintableEncoding;
+					arguments.AddRange(_htmlAttachment.GetArguments());
+				}
+
 				_attachments.Add(_htmlAttachment);
 			}
 
 			// Add recipients
 			arguments.AddRange(recipientMailAddresses.Select(recipient => recipient.Address));
-
-			System.Console.WriteLine("Executing: mail");
-			foreach (string arg in arguments)
-			{
-				System.Console.WriteLine("\t" + arg);
-			}
 	
-			return new Command(arguments, _attachments);
+			return new Command(arguments, _attachments, inputStreamPath);
 		}
 
 		private static readonly char[] UnsafeCharacters = new char[]

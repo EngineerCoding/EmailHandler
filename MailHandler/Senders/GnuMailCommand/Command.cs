@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace MailHandler.Senders.GnuMailCommand
 {
@@ -11,23 +12,36 @@ namespace MailHandler.Senders.GnuMailCommand
 			{
 				UseShellExecute = false,
 				CreateNoWindow = true,
+				RedirectStandardInput = true,
 			},
 		};
 
 		private readonly IEnumerable<Interfaces.Models.Attachment> _attachments;
+		private readonly string _standardInputStreamPath;
 
-		public Command(IEnumerable<string> arguments, IEnumerable<Interfaces.Models.Attachment> attachments)
+		public Command(IEnumerable<string> arguments, IEnumerable<Interfaces.Models.Attachment> attachments, string standardInputStreamPath)
 		{
 			foreach (string argument in arguments)
 			{
 				process.StartInfo.ArgumentList.Add(argument);
 			}
 			_attachments = attachments;
+			_standardInputStreamPath = standardInputStreamPath;
 		}
 
 		public void Execute()
 		{
 			process.Start();
+
+			if (_standardInputStreamPath != null)
+			{
+				using (FileStream fileStream = File.OpenWrite(_standardInputStreamPath))
+				{
+					fileStream.CopyTo(process.StandardInput.BaseStream);
+				}
+			}
+
+			process.StandardInput.Close();
 			process.WaitForExit();
 
 			foreach (Interfaces.Models.Attachment attachment in _attachments)
