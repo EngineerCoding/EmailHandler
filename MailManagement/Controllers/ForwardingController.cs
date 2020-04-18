@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using EmailEntry = MailManagement.Models.EmailEntry;
 
 namespace MailManagement.Controllers
 {
@@ -44,9 +45,9 @@ namespace MailManagement.Controllers
 			return _emailDatabase.All().Skip(skip).Take(pageCount);
 		}
 
-		[HttpPost]
+		[HttpPost("Create")]
 		[Authorize(Scopes.ScopeWriteAdminMail)]
-		public IActionResult Create([FromBody] IEmailEntry emailEntry)
+		public IActionResult Create([FromBody] EmailEntry emailEntry)
 		{
 			IEmailEntry existingItem = _emailDatabase.Find(emailEntry.EmailUser);
 			if (existingItem == null)
@@ -83,7 +84,7 @@ namespace MailManagement.Controllers
 
 		[HttpPut("{emailUser}")]
 		[Authorize(Scopes.ScopeWriteAdminMail)]
-		public IActionResult Update(string emailUser, [FromBody] IEmailEntry emailEntry)
+		public IActionResult Update(string emailUser, [FromBody] EmailEntry emailEntry)
 		{
 			IEmailEntry existingItem = _emailDatabase.Find(emailUser);
 			if (existingItem == null)
