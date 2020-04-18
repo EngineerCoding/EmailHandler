@@ -89,12 +89,13 @@ namespace MailManagement.Controllers
 			}
 
 			bool updated = false;
+			IEmailEntry proxyEmailEntry = new ProxyEmailEntry(existingItem);
 			foreach (PropertyInfo info in emailEntry.GetType().GetProperties())
 			{
 				object newValue = info.GetValue(emailEntry);
 				if (newValue != null)
 				{
-					info.SetValue(existingItem, newValue);
+					info.SetValue(proxyEmailEntry, newValue);
 					updated = true;
 				}
 			}

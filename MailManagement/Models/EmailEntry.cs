@@ -4,8 +4,8 @@ namespace MailManagement.Models
 {
 	public class EmailEntry : IEmailEntry
 	{
-		public string EmailUser { get; set; }
-		public bool Blacklisted { get; set; }
-		public string Tag { get; set; }
+		public virtual string EmailUser { get; set; }
+		public virtual bool Blacklisted { get; set; }
+		public virtual string Tag { get; set; }
 	}
 }
