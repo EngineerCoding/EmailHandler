@@ -55,10 +55,6 @@ namespace MailManagement
 			{
 				app.UseDeveloperExceptionPage();
 			}
-			else
-			{
-				app.UseHttpsRedirection();
-			}
 
 			app.UseAuthentication();
 			app.UseRouting();
