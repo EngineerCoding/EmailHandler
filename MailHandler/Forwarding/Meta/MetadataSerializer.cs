@@ -44,10 +44,11 @@ namespace MailHandler.Forwarding.Meta
 			{
 				stringBuilder
 					.Append(string.Format(PropertyFormat, key, value))
-					.Append("\n");
+					.AppendLine();
 			}
 			stringBuilder
 				.Append(Divider)
+				.AppendLine()
 				.Append(body);
 			return stringBuilder.ToString();
 		}
