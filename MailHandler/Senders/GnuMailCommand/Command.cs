@@ -35,9 +35,10 @@ namespace MailHandler.Senders.GnuMailCommand
 
 			if (_standardInputStreamPath != null)
 			{
-				using (FileStream fileStream = File.OpenWrite(_standardInputStreamPath))
+				using (FileStream fileStream = File.OpenRead(_standardInputStreamPath))
+				using (StreamReader reader = new StreamReader(fileStream))
 				{
-					fileStream.CopyTo(process.StandardInput.BaseStream);
+					process.StandardInput.Write(reader.ReadToEnd());
 				}
 			}
 
