@@ -42,6 +42,15 @@ namespace MailManagement
 				options.AddScopePolicies(issuer);
 			});
 
+			services.AddCors(options =>
+			{
+				options.AddDefaultPolicy(
+					builder =>
+					{
+						builder.WithOrigins(Configuration["CorsClient"]).AllowAnyHeader().AllowAnyMethod();
+					});
+			});
+
 			services.AddSingleton<IAuthorizationHandler, ScopeRequirementHandler>();
 
 			string databasePath = Configuration["SqliteDatabase"];
@@ -61,11 +70,9 @@ namespace MailManagement
 			}
 
 			app.UseAuthentication();
-
 			app.UseRouting();
-
+			app.UseCors();
 			app.UseAuthorization();
-
 			app.UseEndpoints(endpoints =>
 			{
 				endpoints.MapControllers();
