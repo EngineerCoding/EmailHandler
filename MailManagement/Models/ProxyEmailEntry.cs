@@ -12,9 +12,9 @@ namespace MailManagement.Models
 		}
 
 		public override string EmailUser
-		{ 
-			get => _backingEntry.EmailUser; 
-			set => _backingEntry.EmailUser = value; 
+		{
+			get => _backingEntry.EmailUser;
+			set => _backingEntry.EmailUser = value;
 		}
 
 		public override bool Blacklisted

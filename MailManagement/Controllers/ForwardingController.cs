@@ -104,7 +104,7 @@ namespace MailManagement.Controllers
 			{
 				_emailDatabase.Update(existingItem);
 			}
-			
+
 			return new ObjectResult(existingItem)
 			{
 				StatusCode = StatusCodes.Status200OK,
