@@ -1,10 +1,10 @@
-﻿using Autofac;
-using CommandLine;
+﻿using CommandLine;
 using MailDatabase;
 using MailDatabase.SqlLite;
 using MailHandler.Forwarding;
 using MailHandler.Interfaces;
 using MailHandler.Senders;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace MailHandler
@@ -14,8 +14,6 @@ namespace MailHandler
 		private const int VALID_RUN = 0;
 		private const int INVALID_RUN = 1;
 		private const int INVALID_ARGUMENTS = 2;
-
-		public static IContainer Resolver { get; private set; }
 
 		public static int Main(string[] args)
 		{
@@ -38,8 +36,8 @@ namespace MailHandler
 				return INVALID_ARGUMENTS;
 			}
 
-			Resolver = InitDependencyInjection(options);
-			IEmailHandler handler = Resolver.Resolve<IEmailHandler>();
+			IServiceProvider serviceProvider = InitDependencyInjection(options);
+			IEmailHandler handler = serviceProvider.GetRequiredService<IEmailHandler>();
 			if (!handler.HandleIncomingEmail())
 			{
 				return INVALID_RUN;
@@ -48,15 +46,14 @@ namespace MailHandler
 			return VALID_RUN;
 		}
 
-		private static IContainer InitDependencyInjection(Options options)
+		private static IServiceProvider InitDependencyInjection(Options options)
 		{
-			ContainerBuilder containerBuilder = new ContainerBuilder();
-			containerBuilder.RegisterInstance(options);
-			containerBuilder.RegisterType<MailKitSender>().As<IEmailSender>();
-			containerBuilder.RegisterType<Forwarder>().As<IEmailHandler>();
-			containerBuilder.RegisterInstance(new EmailDatabase(options.EmailDatabase)).As<IEmailDatabase>();
-
-			return containerBuilder.Build();
+			IServiceCollection services = new ServiceCollection();
+			services.AddSingleton(options);
+			services.AddSingleton<IEmailSender, MailKitSender>();
+			services.AddSingleton<IEmailHandler, Forwarder>();
+			services.AddSingleton<IEmailDatabase>(new EmailDatabase(options.EmailDatabase));
+			return services.BuildServiceProvider();
 		}
 	}
 }
