@@ -8,6 +8,11 @@ using System.IO;
 
 namespace MailHandler.Forwarding
 {
+	/// <summary>
+	/// An email handler which forwards messages towards another email address for storage purposes. This forward handler is
+	/// forward only currently, not yet reversible.
+	/// </summary>
+	/// <seealso cref="MailHandler.Interfaces.IEmailHandler" />
 	public class Forwarder : IEmailHandler
 	{
 		private const string OriginalToHeader = "X-Original-To";
@@ -19,6 +24,12 @@ namespace MailHandler.Forwarding
 		private readonly SessionObjectCache<string, IEmailEntry> emailEntryCache;
 		private readonly SessionObjectCache<MimeMessage, string> toCache;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Forwarder"/> class.
+		/// </summary>
+		/// <param name="options">The injected options.</param>
+		/// <param name="emailSender">The injected email sender.</param>
+		/// <param name="database">The injected database.</param>
 		public Forwarder(Options options, IEmailSender emailSender, IEmailDatabase database)
 		{
 			_options = options;
@@ -29,7 +40,7 @@ namespace MailHandler.Forwarding
 			{
 				string to = message.Headers[OriginalToHeader];
 				// Check if the to is a local user
-				if (to.Contains("@"))
+				if (to.Contains(Constants.AtSymbol))
 				{
 					System.Net.Mail.MailAddress address = new System.Net.Mail.MailAddress(to);
 					return address.User;
@@ -42,6 +53,7 @@ namespace MailHandler.Forwarding
 			});
 		}
 
+		/// <inheritdoc/>
 		public bool HandleIncomingEmail()
 		{
 			MimeParser mimeParser = new MimeParser(_options.GetInputEmail(), !_options.StdIn);
@@ -67,6 +79,10 @@ namespace MailHandler.Forwarding
 			return true;
 		}
 
+		/// <summary>
+		/// Forwards the email to the relay email address.
+		/// </summary>
+		/// <param name="mimeMessage">The MIME message.</param>
 		public void ForwardEmail(MimeMessage mimeMessage)
 		{
 			Metadata metadata = MetadataFactory.GenerateFrom(mimeMessage);
@@ -113,14 +129,14 @@ namespace MailHandler.Forwarding
 					string text = textPart.Text;
 					if (textPart.ContentType.MimeType == Constants.TextMimeType)
 					{
-						text = MetadataSerializer.SerializeWithText(metadata, text);
+						text = MetadataSerializer.SerializeForText(metadata, text);
 					}
 					else if (textPart.ContentType.MimeType == Constants.HtmlMimeType)
 					{
-						text = MetadataSerializer.SerializeWithHtml(metadata, text);
+						text = MetadataSerializer.SerializeForHtml(metadata, text);
 					}
 
-					email.Texts.Add(
+					email.TextContents.Add(
 						new Text()
 						{
 							RawText = text,
@@ -136,6 +152,13 @@ namespace MailHandler.Forwarding
 			toCache.Clear();
 		}
 
+		/// <summary>
+		/// Checks whether we should forward the receiving email.
+		/// </summary>
+		/// <param name="email">The email.</param>
+		/// <returns>
+		/// Whether the email should be forwarded to the relay email
+		/// </returns>
 		public bool ShouldForward(string email)
 		{
 			IEmailEntry emailEntry = emailEntryCache.Get(email);
@@ -146,6 +169,13 @@ namespace MailHandler.Forwarding
 			return true;
 		}
 
+		/// <summary>
+		/// Determines whether the specified email is the relay email.
+		/// </summary>
+		/// <param name="email">The email.</param>
+		/// <returns>
+		///   <c>true</c> if the specified email is the relay email; otherwise, <c>false</c>.
+		/// </returns>
 		public bool IsFromRelay(string email)
 		{
 			return string.Equals(_options.RelayEmail, email, System.StringComparison.InvariantCultureIgnoreCase);

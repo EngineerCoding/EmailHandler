@@ -1,7 +1,11 @@
 ﻿using MimeKit;
+using System;
 
 namespace MailHandler.Forwarding
 {
+	/// <summary>
+	/// Extensions for the content encoding
+	/// </summary>
 	public static class ContentEncodingExtensions
 	{
 		private const string Base64 = "base64";
@@ -10,6 +14,13 @@ namespace MailHandler.Forwarding
 		private const string EightBit = "8bit";
 		private const string SevenBit = "7bit";
 
+		/// <summary>
+		/// Gets the raw encoding as a string.
+		/// </summary>
+		/// <param name="contentEncoding">The content encoding.</param>
+		/// <returns>
+		/// The raw encoding as a string
+		/// </returns>
 		public static string GetRaw(this ContentEncoding contentEncoding)
 		{
 			switch (contentEncoding)
@@ -25,11 +36,18 @@ namespace MailHandler.Forwarding
 				case ContentEncoding.SevenBit:
 					return SevenBit;
 				default:
-					return null;
+					throw new NotImplementedException("Raw content encoding: " + contentEncoding.ToString());
 			}
 		}
 
-		public static ContentEncoding? GetContentEncoding(this string contentEncoding)
+		/// <summary>
+		/// Gets the content encoding.
+		/// </summary>
+		/// <param name="contentEncoding">The content encoding.</param>
+		/// <returns>
+		/// The enum content encoding based on the string
+		/// </returns>
+		public static ContentEncoding GetContentEncoding(this string contentEncoding)
 		{
 			switch (contentEncoding)
 			{
@@ -44,7 +62,7 @@ namespace MailHandler.Forwarding
 				case SevenBit:
 					return ContentEncoding.SevenBit;
 				default:
-					return null;
+					throw new NotImplementedException("String content encoding: " + contentEncoding);
 			}
 		}
 	}

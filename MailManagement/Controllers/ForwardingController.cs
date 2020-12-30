@@ -16,8 +16,15 @@ namespace MailManagement.Controllers
 	[Route("mail/[controller]")]
 	public class ForwardingController : ControllerBase
 	{
+		/// <summary>
+		/// The email database
+		/// </summary>
 		private readonly IEmailDatabase _emailDatabase;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ForwardingController"/> class.
+		/// </summary>
+		/// <param name="emailDatabase">The injected email database.</param>
 		public ForwardingController(IEmailDatabase emailDatabase)
 		{
 			_emailDatabase = emailDatabase;
@@ -41,7 +48,7 @@ namespace MailManagement.Controllers
 			pageCount = Math.Max(0, pageCount);
 			int skip = page * pageCount;
 
-			return _emailDatabase.All().Skip(skip).Take(pageCount);
+			return _emailDatabase.All(skip, pageCount);
 		}
 
 		[HttpPost("Create")]

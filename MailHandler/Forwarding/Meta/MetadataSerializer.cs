@@ -5,7 +5,10 @@ using System.Text;
 
 namespace MailHandler.Forwarding.Meta
 {
-	public class MetadataSerializer
+	/// <summary>
+	/// A class which serialized the Metadata in email text
+	/// </summary>
+	public static class MetadataSerializer
 	{
 		private const string PropertyFormat = "{0}: {1}";
 		private const string Divider = "----------------------------";
@@ -18,6 +21,13 @@ namespace MailHandler.Forwarding.Meta
 		private const string TdClosing = "</td>";
 		private const string Br = "<br/>";
 
+		/// <summary>
+		/// Enumerates the properties.
+		/// </summary>
+		/// <param name="metadata">The metadata.</param>
+		/// <returns>
+		/// An enumerable of tuples containing the property name and value
+		/// </returns>
 		private static IEnumerable<(string, string)> EnumerateProperties(Metadata metadata)
 		{
 			PropertyInfo[] properties = typeof(Metadata).GetProperties();
@@ -29,10 +39,17 @@ namespace MailHandler.Forwarding.Meta
 					yield return (property.Name, value);
 				}
 			}
-			yield break;
 		}
 
-		public static string SerializeWithText(Metadata metadata, string body)
+		/// <summary>
+		/// Serializes for plain text.
+		/// </summary>
+		/// <param name="metadata">The metadata.</param>
+		/// <param name="body">The body.</param>
+		/// <returns>
+		/// The metadata prepended body
+		/// </returns>
+		public static string SerializeForText(Metadata metadata, string body)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
 			foreach ((string key, string value) in EnumerateProperties(metadata))
@@ -48,7 +65,15 @@ namespace MailHandler.Forwarding.Meta
 			return stringBuilder.ToString();
 		}
 
-		public static string SerializeWithHtml(Metadata metadata, string body)
+		/// <summary>
+		/// Serializes for HTML.
+		/// </summary>
+		/// <param name="metadata">The metadata.</param>
+		/// <param name="body">The body.</param>
+		/// <returns>
+		/// The body with HTML prepended Metadata
+		/// </returns>
+		public static string SerializeForHtml(Metadata metadata, string body)
 		{
 			if (string.IsNullOrEmpty(body))
 			{

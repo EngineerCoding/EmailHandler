@@ -1,5 +1,8 @@
 ﻿namespace MailHandler.Forwarding.Meta
 {
+	/// <summary>
+	/// The metadata object
+	/// </summary>
 	public class Metadata
 	{
 		public string To { get; set; }

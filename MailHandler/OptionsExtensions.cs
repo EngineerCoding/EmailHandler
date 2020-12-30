@@ -1,9 +1,12 @@
-﻿using Newtonsoft.Json;
-using System.IO;
+﻿using System.IO;
 using System.Net.Mail;
+using System.Text.Json;
 
 namespace MailHandler
 {
+	/// <summary>
+	/// Extensions for the <seealso cref="Options"/>
+	/// </summary>
 	public static class OptionsExtensions
 	{
 		public const string FileDoesNotExist = "File '{0}' does not exist";
@@ -17,7 +20,9 @@ namespace MailHandler
 		/// Loads the settings from a JSON file
 		/// </summary>
 		/// <param name="options">The options to populate</param>
-		/// <returns>Whether the options are in a correct state. When true, either loading succeeded or no settings file is available.</returns>
+		/// <returns>
+		/// Whether the options are in a correct state. When true, either loading succeeded or no settings file is available.
+		/// </returns>
 		public static bool LoadSettingsFile(this Options options)
 		{
 			if (options.SettingsFile != null)
@@ -27,7 +32,7 @@ namespace MailHandler
 					return false;
 				}
 
-				Options newOptions = JsonConvert.DeserializeObject<Options>(File.ReadAllText(options.SettingsFile));
+				Options newOptions = JsonSerializer.Deserialize<Options>(File.ReadAllText(options.SettingsFile));
 				options.RelayEmail = newOptions.RelayEmail;
 				options.EmailFile = newOptions.EmailFile;
 				options.StdIn = newOptions.StdIn;
@@ -39,7 +44,9 @@ namespace MailHandler
 		/// Checks whether the settings are valid as is
 		/// </summary>
 		/// <param name="options">The options to check</param>
-		/// <returns>A string with an error or null when valid</returns>
+		/// <returns>
+		/// A string with an error or null when valid
+		/// </returns>
 		public static string Validate(this Options options)
 		{
 			// Check the relay email
@@ -84,8 +91,10 @@ namespace MailHandler
 		/// Retrieves the correct input stream which represents the email to process.
 		/// This either can be from the StandardInput or from the Email File.
 		/// </summary>
-		/// <param name="options"></param>
-		/// <returns></returns>
+		/// <param name="options">The options.</param>
+		/// <returns>
+		/// The input stream representing the email
+		/// </returns>
 		public static Stream GetInputEmail(this Options options)
 		{
 			if (options.StdIn)
@@ -98,8 +107,10 @@ namespace MailHandler
 		/// <summary>
 		/// Retrieves the fully qualified email address which acts as sender
 		/// </summary>
-		/// <param name="options"></param>
-		/// <returns></returns>
+		/// <param name="options">The options.</param>
+		/// <returns>
+		/// The fully qualitfied email address which acts as sender
+		/// </returns>
 		public static string GetSender(this Options options)
 		{
 			return string.Format("{0}@{1}", options.SmtpUser, options.SmtpHost);
@@ -109,7 +120,9 @@ namespace MailHandler
 		/// Checks whether the given email address is a valid email address (based on the format, not on the validity)
 		/// </summary>
 		/// <param name="email">The email address to check</param>
-		/// <returns>Whether the email address is in a valid format</returns>
+		/// <returns>
+		/// Whether the email address is in a valid format
+		/// </returns>
 		private static bool IsValidEmail(string email)
 		{
 			try

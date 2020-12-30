@@ -2,6 +2,9 @@
 
 namespace MailHandler
 {
+	/// <summary>
+	/// Options used by this program
+	/// </summary>
 	public class Options
 	{
 		[Option(HelpText = "The file to read settings from in JSON format")]

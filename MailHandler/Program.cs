@@ -9,18 +9,35 @@ using System;
 
 namespace MailHandler
 {
-	public class Program
+	/// <summary>
+	/// The entrypoint class
+	/// </summary>
+	public static class Program
 	{
 		private const int VALID_RUN = 0;
 		private const int INVALID_RUN = 1;
 		private const int INVALID_ARGUMENTS = 2;
 
+		/// <summary>
+		/// The entry point method
+		/// </summary>
+		/// <param name="args">The arguments.</param>
+		/// <returns>
+		/// The program return code
+		/// </returns>
 		public static int Main(string[] args)
 		{
 			return Parser.Default.ParseArguments<Options>(args)
 				.MapResult(Run, (_) => INVALID_ARGUMENTS);
 		}
 
+		/// <summary>
+		/// Runs based on the specified options.
+		/// </summary>
+		/// <param name="options">The options.</param>
+		/// <returns>
+		/// The program return code
+		/// </returns>
 		private static int Run(Options options)
 		{
 			if (!options.LoadSettingsFile())
