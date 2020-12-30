@@ -20,7 +20,7 @@ namespace MailHandler.Cache
 			{
 				return cache[key];
 			}
-			else 
+			else
 			{
 				TValue value = _source.Invoke(key);
 				cache[key] = value;

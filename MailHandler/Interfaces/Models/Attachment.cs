@@ -3,7 +3,7 @@ using System.IO;
 
 namespace MailHandler.Interfaces.Models
 {
-	public class Attachment : IDisposable
+	public abstract class Attachment : IDisposable
 	{
 		public string FilePath { get; set; }
 

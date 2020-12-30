@@ -28,6 +28,6 @@ namespace MailHandler.Forwarding.Meta
 			IEnumerable<string> addresses = internetAddresses.Select(address => address.ToString());
 			return string.Join(',', addresses);
 		}
-		
+
 	}
 }

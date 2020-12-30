@@ -4,7 +4,6 @@ using MailHandler.Forwarding.Meta;
 using MailHandler.Interfaces;
 using MailHandler.Interfaces.Models;
 using MimeKit;
-using MimeKit.Text;
 using System.IO;
 
 namespace MailHandler.Forwarding
@@ -64,7 +63,7 @@ namespace MailHandler.Forwarding
 			{
 				ForwardEmail(message);
 			}
-			
+
 			return true;
 		}
 
@@ -84,8 +83,6 @@ namespace MailHandler.Forwarding
 				new System.Net.Mail.MailAddress(_options.GetSender()),
 				new System.Net.Mail.MailAddress(_options.RelayEmail))
 			{
-				TextContent = MetadataSerializer.SerializeWithText(metadata, mimeMessage.GetTextBody(TextFormat.Plain)),
-				HtmlContent = MetadataSerializer.SerializeWithHtml(metadata, mimeMessage.GetTextBody(TextFormat.Html)),
 				Subject = subject,
 			};
 
@@ -93,10 +90,9 @@ namespace MailHandler.Forwarding
 			{
 				if (mimeEntity.IsAttachment)
 				{
-					MimePart mimePart = mimeEntity as MimePart;
-					if (mimePart == null) continue;
+					if (!(mimeEntity is MimePart mimePart)) continue;
 
-					TemporaryAttachment temporaryAttachment;
+					Attachment temporaryAttachment;
 					using (MemoryStream memoryStream = new MemoryStream())
 					{
 						mimePart.Content.DecodeTo(memoryStream);
@@ -111,6 +107,26 @@ namespace MailHandler.Forwarding
 					}
 
 					email.Attachments.Add(temporaryAttachment);
+				}
+				else if (mimeEntity is TextPart textPart)
+				{
+					string text = textPart.Text;
+					if (textPart.ContentType.MimeType == Constants.TextMimeType)
+					{
+						text = MetadataSerializer.SerializeWithText(metadata, text);
+					}
+					else if (textPart.ContentType.MimeType == Constants.HtmlMimeType)
+					{
+						text = MetadataSerializer.SerializeWithHtml(metadata, text);
+					}
+
+					email.Texts.Add(
+						new Text()
+						{
+							RawText = text,
+							MimeType = textPart.ContentType.MimeType,
+							Charset = textPart.ContentType.Charset,
+						});
 				}
 			}
 

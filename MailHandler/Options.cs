@@ -25,7 +25,7 @@ namespace MailHandler
 		public string SmtpHost { get; set; }
 
 		[Option(HelpText = "The port of the SMTP server")]
-		public ushort SmtpPort { get; set; } = 587;
+		public ushort SmtpPort { get; set; } = 25;
 
 		[Option(HelpText = "The user which is sends the emails to the RelayEmail")]
 		public string SmtpUser { get; set; }

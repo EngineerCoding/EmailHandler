@@ -4,8 +4,10 @@ namespace MailHandler.Interfaces.Models
 {
 	public class TemporaryAttachment : Attachment
 	{
-		public TemporaryAttachment(byte[] data) : this(new MemoryStream(data))
-		{ }
+		public TemporaryAttachment(byte[] data)
+			: this(new MemoryStream(data))
+		{
+		}
 
 		public TemporaryAttachment(Stream stream)
 		{

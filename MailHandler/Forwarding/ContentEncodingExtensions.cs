@@ -19,11 +19,30 @@ namespace MailHandler.Forwarding
 				case ContentEncoding.Binary:
 					return Binary;
 				case ContentEncoding.QuotedPrintable:
-					return QuotedPrintable; 
+					return QuotedPrintable;
 				case ContentEncoding.EightBit:
 					return EightBit;
 				case ContentEncoding.SevenBit:
 					return SevenBit;
+				default:
+					return null;
+			}
+		}
+
+		public static ContentEncoding? GetContentEncoding(this string contentEncoding)
+		{
+			switch (contentEncoding)
+			{
+				case Base64:
+					return ContentEncoding.Base64;
+				case Binary:
+					return ContentEncoding.Binary;
+				case QuotedPrintable:
+					return ContentEncoding.QuotedPrintable;
+				case EightBit:
+					return ContentEncoding.EightBit;
+				case SevenBit:
+					return ContentEncoding.SevenBit;
 				default:
 					return null;
 			}

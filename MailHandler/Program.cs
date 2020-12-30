@@ -52,7 +52,7 @@ namespace MailHandler
 		{
 			ContainerBuilder containerBuilder = new ContainerBuilder();
 			containerBuilder.RegisterInstance(options);
-			containerBuilder.RegisterType<GnuMailSender>().As<IEmailSender>();
+			containerBuilder.RegisterType<MailKitSender>().As<IEmailSender>();
 			containerBuilder.RegisterType<Forwarder>().As<IEmailHandler>();
 			containerBuilder.RegisterInstance(new EmailDatabase(options.EmailDatabase)).As<IEmailDatabase>();
 
