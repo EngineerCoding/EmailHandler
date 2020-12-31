@@ -17,15 +17,15 @@ While currently this is not fully implemented yet, the flow will eventually look
                   v                                         v
      +---------------------------+           +-------------------------------+
      | Parse 1st metadata block  |           | Generate metadata about email |
- +---| Remove 1st metadata block |           +-------------------------------+
- |   +---------------------------+                          |
- |                |                                         v
- |                v                          +-------------------------------+
- |         +--------------+                  |   Insert metadata in email    |
- |         | Is replying? |                  |        (html and text)        |
+     | Remove 1st metadata block |           +-------------------------------+
+     +---------------------------+                          |
+                  |                                         v
+                  v                          +-------------------------------+
+           +--------------+                  |   Insert metadata in email    |
+ +---------| Is replying? |                  |        (html and text)        |
  |         +--------------+                  +-------------------------------+
- |                | no                                      |
- | yes            v                                         v
+ |                | yes                                     |
+ | no             v                                         v
  |     +------------------------+                 +---------------------+
  |     | Set correct message ID |                 | Add tags to subject |
  |     +------------------------+                 +---------------------+

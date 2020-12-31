@@ -5,9 +5,14 @@ VisualStudioVersion = 16.0.29411.108
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailHandler", "MailHandler\MailHandler.csproj", "{CA12E999-B0A3-4624-83E4-DBA29CD455C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailDatabase", "MailDatabase\MailDatabase.csproj", "{2A13D7EE-9797-4C53-8E8F-9F59CDCA6488}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailDatabase", "MailDatabase\MailDatabase.csproj", "{2A13D7EE-9797-4C53-8E8F-9F59CDCA6488}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailManagement", "MailManagement\MailManagement.csproj", "{27377F34-6901-404F-8CF6-784B0A9D0ED4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailManagement", "MailManagement\MailManagement.csproj", "{27377F34-6901-404F-8CF6-784B0A9D0ED4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA82C4A0-AB2A-42BC-8542-5DE48C0D4802}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
